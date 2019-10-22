@@ -37,6 +37,15 @@ public final class Config {
      * 默认使用当前应用的缓存目录： getCacheDir()
      */
     public static String recordDir = null;
+
+    static {
+        try {
+            recordDir = ContextGetter.applicationContext().getCacheDir().getAbsolutePath();
+        } catch (Throwable e) {
+            e.fillInStackTrace();
+        }
+    }
+
     /**
      * 记录上传信息文件最大值，单位：字节。
      * <p>
@@ -62,13 +71,17 @@ public final class Config {
      */
     public static int interval = 10;
 
-    static {
-        try {
-            recordDir = ContextGetter.applicationContext().getCacheDir().getAbsolutePath();
-        } catch (Throwable e) {
-            e.fillInStackTrace();
-        }
-    }
+    /**
+     * dns缓存信息目录
+     */
+    public static String dnscacheDir = "/sdcard/dnschache";
+
+    /**
+     * preQuery host
+     */
+    public static String preQueryHost = "uc.qbox.me";
+
+    public static int rePreHost = 2;
 
     /**
      * 当网络切换到 wifi 下，切换到此设置

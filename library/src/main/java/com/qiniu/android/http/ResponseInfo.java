@@ -22,6 +22,8 @@ public final class ResponseInfo {
     public static final int Cancelled = -2;
     public static final int NetworkError = -1;
 
+    public static final int Crc32NotMatch = -406;
+
     public static final int UnknownError = 0;
 
     // <-- error code copy from ios
@@ -127,7 +129,7 @@ public final class ResponseInfo {
         final String ip = _ip.substring(Math.max(0, _ip.indexOf("/") + 1));
         ResponseInfo res = new ResponseInfo(json, statusCode, reqId, xlog, xvia, host, path, ip,
                 port, duration, sent, error, upToken, totalSize);
-        if (Config.isRecord || upToken != null) {
+        if (Config.isRecord) {
             final String _timeStamp = res.timeStamp + "";
             UploadInfoCollector.handleHttp(upToken,
                     // 延迟序列化.如果判断不记录,则不执行序列化
@@ -171,6 +173,12 @@ public final class ResponseInfo {
         }
     }
 
+    public static ResponseInfo errorInfo(ResponseInfo old, int statusCode, String error) {
+        ResponseInfo _new = new ResponseInfo(old.response, statusCode, old.reqId, old.xlog, old.xvia, old.host,
+                old.path, old.ip, old.port, old.duration, old.sent, error, old.upToken, old.totalSize);
+        return _new;
+    }
+
     public static ResponseInfo zeroSize(final UpToken upToken) {
         return create(null, ZeroSizeFile, "", "", "", "", "", "", 80, 0, 0, "file or data size is zero", upToken, 0);
     }
@@ -192,7 +200,8 @@ public final class ResponseInfo {
     }
 
     public static ResponseInfo networkError(int code, UpToken upToken) {
-        return create(null, code, "", "", "", "", "", "", 80, 0, 0, "Network error during preQuery", upToken, 0);
+        return create(null, code, "", "", "", "", "", "", 80, 0, 0, "Network error during preQuery, Please check your network or " +
+                "use http try again", upToken, 0);
     }
 
     public static boolean isStatusCodeForBrokenNetwork(int code) {
